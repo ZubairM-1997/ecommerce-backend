@@ -1,11 +1,12 @@
 const graphql = require("graphql");
+const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList} = graphql;
+
 const User = require("../models/User");
 const Item = require("../models/Item");
 const Personal = require("../models/Personal");
+
 const PaymentMethod = require("../models/PaymentMethod");
 const Order = require("../models/Order");
-
-const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList} = graphql;
 
 const UserType = new GraphQLObjectType({
 	name: "User",
@@ -126,7 +127,7 @@ module.exports = {
 	ItemType,
 	OrderType,
 	UserType,
-	PaymentMethodTypes,
+	PaymentMethodType,
 	PersonalDataType
 }
 

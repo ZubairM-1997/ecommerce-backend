@@ -1,18 +1,20 @@
 const graphql = require("graphql");
-const {UserType, PersonalDataType} = require("../typeDefinitions")
 const sanitize = require("mongo-sanitize");
 
+const {GraphQLObjectType, GraphQLID, GraphQLString} = graphql;
+
+const {PersonalDataType} = require("../typeDefinitions")
 const Personal = require("../../models/Personal");
-const User = require("../../models/User");
+
 
 const PersonalDataQuery = new GraphQLObjectType({
 	name: "PersonalDataQuery",
 	fields: () => ({
 		personalData: {
 			type: PersonalDataType,
-			args: {id: {type: GraphQLID}},
+			args: {userId: {type: GraphQLID}},
 			resolve(parent, args){
-				return Personal.find(args.id)
+				return Personal.find({userId: args.userId})
 			}
 		}
 	})
@@ -31,17 +33,27 @@ const PersonalDataMutation = new GraphQLObjectType({
 			},
 			async resolve(parent, args){
 
-
-
-				let cleanedAdress = sanitize(args.address);
+				let cleanedAddress = sanitize(args.address);
 				let cleanedCountry = sanitize(args.country);
 				let cleanedPhone = sanitize(args.cleanedPhone);
 
-				let foundData = await Personal.findById({userId: args.userId})
+				if (cleanedAddress === null || cleanedAddress === " "){
+					const err = new Error("Address cannot be empty")
+				}
+
+				if (cleanedCountry === null || cleanedCountry === " "){
+					const err = new Error("Country name cannot be empty")
+				}
+
+				if (cleanedPhone === null || cleanedPhone === " "){
+					const err = new Error("Phone number cannot be empty")
+				}
+
+				let foundData = await Personal.find({userId: args.userId})
 				if (!foundData){
 
 					let dataObj = new Personal({
-						address: cleanedAdress,
+						address: cleanedAddress,
 						country: cleanedCountry,
 						phone: cleanedPhone,
 						userId: args.userId
@@ -58,7 +70,6 @@ const PersonalDataMutation = new GraphQLObjectType({
 		changeData: {
 			type: PersonalDataType,
 			args: {
-				_id: {type: GraphQLID},
 				userId: {type: GraphQLID},
 				address: {type: GraphQLString},
 				country: {type: GraphQLString},
@@ -70,13 +81,34 @@ const PersonalDataMutation = new GraphQLObjectType({
 				let cleanedCountry = sanitize(args.country);
 				let cleanedPhone = sanitize(args.cleanedPhone);
 
+				if (cleanedAddress === null || cleanedAddress === " "){
+					const err = new Error("Address cannot be empty")
+				}
+
+				if (cleanedCountry === null || cleanedCountry === " "){
+					const err = new Error("Country name cannot be empty")
+				}
+
+				if (cleanedPhone === null || cleanedPhone === " "){
+					const err = new Error("Phone number cannot be empty")
+				}
+
 				let mutatedData = {
 					address: cleanedAddress,
 					country: cleanedCountry,
 					phone: cleanedPhone
 				}
 
+				let chanagedData = await Personal.findOneAndUpdate({userId: args.userId}, mutatedData);
+				return chanagedData;
+
+
 			}
 		}
 	})
+})
+
+module.exports = new GraphQLSchema({
+	query: PersonalDataQuery,
+	mutation: PersonalDataMutation
 })
