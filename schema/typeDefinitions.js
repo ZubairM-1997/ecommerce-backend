@@ -58,7 +58,7 @@ const PaymentMethodType = new GraphQLObjectType({
 	fields: () => ({
 		id: {type: GraphQLID},
 		name: {type: GraphQLString},
-		number: {type: GraphQLString},
+		cardNumber: {type: GraphQLString},
 		expiry: {type: GraphQLString},
 		securityNumber: {type: GraphQLString},
 		user: {

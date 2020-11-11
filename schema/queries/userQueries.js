@@ -7,6 +7,8 @@ const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList, Gra
 const {AuthType, UserType} = require("../typeDefinitions");
 const User = require("../../models/User");
 
+const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+
 const UserQuery = new GraphQLObjectType({
 	name: "UserQuery",
 	fields: () => ({
@@ -24,21 +26,26 @@ const UserQuery = new GraphQLObjectType({
 				let cleanEmail = sanitize(email);
 				let cleanPassword = sanitize(password);
 
-				return User.findOne({email: cleanEmail}).then((user) => {
-					const isEqual = bcrypt.compare(cleanPassword, user.password)
-					if (!isEqual) {
-						throw new Error('Password is incorrect!');
-					}
+				if (cleanEmail.match(emailRegex)){
+					return User.findOne({email: cleanEmail}).then((user) => {
+						const isEqual = bcrypt.compare(cleanPassword, user.password)
+						if (!isEqual) {
+							throw new Error('Password is incorrect!');
+						}
 
-					const token = jwt.sign({
-						userId: user.id,
-						email: cleanEmail},
-						"a_super_secret",
-						{expiresIn: "1h"}
-					)
+						const token = jwt.sign({
+							userId: user.id,
+							email: cleanEmail},
+							"a_super_secret",
+							{expiresIn: "1h"}
+						)
 
-					return {token: token, userId: user.id}
-				})
+						return {token: token, userId: user.id}
+					})
+				} else {
+					const err = new Error("Please enter a valid email address")
+					return err;
+				}
 			}
 		}
 	})
@@ -58,26 +65,32 @@ const UserMutation = new GraphQLObjectType({
 
 				let cleanName = sanitize(args.name);
 				let cleanEmail = sanitize(args.email);
+				console.log(cleanEmail);
 				let cleanPassword = sanitize(args.password);
 
-				const existingUser =  await User.findOne({email: cleanEmail})
-				if (!existingUser){
-					const error = new Error("User already exists");
+				if (cleanEmail.match(emailRegex)){
+					const existingUser =  await User.findOne({email: cleanEmail})
+					console.log(existingUser)
+					if (existingUser){
+						const error = new Error("User already exists");
+						return error;
+					}
+
+					const encryptedPassword =  await bcrypt.hash(cleanPassword, 12)
+
+					let user = new User({
+						name: cleanName,
+						email: cleanEmail,
+						password: encryptedPassword
+					})
+
+					const createdUser =  user.save();
+					return createdUser
+				} else {
+					const err = new Error("Please enter a valid email address")
 				}
-
-				const encryptedPassword =  await bcrypt.hash(cleanPassword, 12)
-
-				let user = new User({
-					name: cleanName,
-					email: cleanEmail,
-					password: encryptedPassword
-				})
-
-				const createdUser =  user.save();
-				return createdUser
 			}
 		}
-
 	}
 })
 

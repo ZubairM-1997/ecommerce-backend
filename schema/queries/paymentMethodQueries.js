@@ -51,17 +51,23 @@ const PaymentMethodMutation = new GraphQLObjectType({
 					newCvv = firstDigit.concat(str)
 				} else {
 					const err = new Error("Please input the correct CVV number format")
+					return err;
 				}
 
 				if (cleanedCardNumber.match(visa) || cleanedCardNumber.match(mastercard)){
 					let firstHalf = cleanedCardNumber.substring(0, 8);
 					let secondHalf = cleanedCardNumber.substring(8, 16);
-					let hashedSecondHalf = await bcrypt.hash(secondHalf, 12);
+					let hashedSecondHalf = await bcrypt.hash(secondHalf, 6);
+
 
 					secureCardNumber = firstHalf.concat(hashedSecondHalf);
+
 				} else {
 					const err = new Error("Must be a Visa or a MasterCard")
+					return err;
 				}
+
+				console.log(secureCardNumber);
 
 				let newPayment = new Payment({
 					name: cleanedName,
@@ -82,6 +88,12 @@ const PaymentMethodMutation = new GraphQLObjectType({
 			},
 			async resolve(parent, args){
 				const foundPaymentMethod = await Payment.findByIdAndDelete(args._id);
+				const message = {
+					msg: "You have deleted this Payment method",
+					paymentMethod: foundPaymentMethod
+				}
+
+				return message;
 			}
 		}
 

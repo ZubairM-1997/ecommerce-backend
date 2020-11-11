@@ -64,6 +64,7 @@ const PersonalDataMutation = new GraphQLObjectType({
 
 				} else {
 					const err = new Error("You have already created the data")
+					return err;
 				}
 			}
 		},
