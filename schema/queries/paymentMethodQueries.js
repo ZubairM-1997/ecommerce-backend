@@ -88,3 +88,8 @@ const PaymentMethodMutation = new GraphQLObjectType({
 		})
 	}
 )
+
+module.exports = {
+	query: PaymentMethodQuery,
+	mutation: PaymentMethodMutation
+}

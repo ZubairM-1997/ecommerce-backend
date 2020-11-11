@@ -103,6 +103,7 @@ const ItemType = new GraphQLObjectType({
 		price: {type: GraphQLInt},
 		category: {type: GraphQLString},
 		description: {type: GraphQLString},
+		quantity: {type: GraphQLInt},
 		img: {type: GraphQLString},
 		order: {
 			type: OrderType,

@@ -2,6 +2,7 @@ const graphql = require("graphql");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sanitize = require("mongo-sanitize")
+const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList, GraphQLSchema} = graphql;
 
 const {AuthType, UserType} = require("../typeDefinitions");
 const User = require("../../models/User");

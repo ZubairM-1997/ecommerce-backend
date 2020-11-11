@@ -1,7 +1,7 @@
 const graphql = require("graphql");
 const sanitize = require("mongo-sanitize");
 
-const {GraphQLObjectType, GraphQLID, GraphQLString} = graphql;
+const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLSchema, GraphQLSchema} = graphql;
 
 const {PersonalDataType} = require("../typeDefinitions")
 const Personal = require("../../models/Personal");

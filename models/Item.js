@@ -8,6 +8,7 @@ const itemSchema = Schema({
 	category: {type: String, required: true},
 	description: {type: String, required: true},
 	img: {type: String, required: true},
+	quantity: {type: Number, required: true},
 	orderId: {type: Schema.Types.ObjectId, required: true, ref: "Order"}
 
 })
