@@ -20,6 +20,7 @@ const OrderQuery = new GraphQLObjectType({
 })
 
 const OrderMutation = new GraphQLObjectType({
+	name: "OrderMutations",
 	fields: () => ({
 		createOrder: {
 			type: OrderType,

@@ -2,8 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,10 +15,12 @@
     "express": "^4.17.1",
     "express-graphql": "^0.11.0",
     "graphql": "^15.4.0",
-    "graphql-tools": "^7.0.1",
+    "graphql-tools": "^4.0.6",
     "jsonwebtoken": "^8.5.1",
     "mongo-sanitize": "^1.1.0",
-    "mongoose": "^5.10.13",
+    "mongoose": "^5.10.13"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.6"
   }
 }
