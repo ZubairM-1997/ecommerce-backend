@@ -84,7 +84,7 @@ const OrderType = new GraphQLObjectType({
 		orderReference: {type: GraphQLString},
 		orderDate: {type: GraphQLString},
 		items: {
-			type: new GraphQLList(ItemType),
+			type: GraphQLList(ItemType),
 			async resolve(parent, args){
 				let found = await Item.find({orderId: parent.id})
 				return found;
