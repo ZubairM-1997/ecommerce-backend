@@ -58,19 +58,14 @@ const ItemMutation = new GraphQLObjectType({
 			async resolve(parent, args){
 
 				if (args.quantity === 0){
-					const deleted = await Item.findByIdAndDelete(args.Id);
-					let message = {
-						msg: "This item is deleted",
-						item: deleted
-					}
-					return message;
+					const deleted = await Item.findByIdAndDelete(args.Id)
+					return deleted;
 				}
 
 				let updatedQuantity = args.quantity
 				let updatedItem = await Item.findByIdAndUpdate(args.Id, {quantity: updatedQuantity})
-
-
-				return updatedItem
+				const item = await Item.findById(args.Id)
+				return item
 			}
 
 		}

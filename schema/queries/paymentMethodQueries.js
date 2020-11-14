@@ -32,15 +32,18 @@ const PaymentMethodMutation = new GraphQLObjectType({
 			args: {
 				name: {type: GraphQLString},
 				cardNumber: {type: GraphQLString},
-				expiryDate: {type: GraphQLString},
+				expiry: {type: GraphQLString},
 				securityNumber: {type: GraphQLString},
 				userId: {type: GraphQLID}
 			},
 			async resolve(parent, args){
+
 				let cleanedName = sanitize(args.name);
 				let cleanedCardNumber = sanitize(args.cardNumber);
-				let cleanedExpiry = sanitize(args.expiryDate);
+				let cleanedExpiry = sanitize(args.expiry);
 				let cleanedSecurity = sanitize(args.securityNumber);
+
+
 
 				let secureCardNumber;
 				let newCvv;
@@ -55,10 +58,11 @@ const PaymentMethodMutation = new GraphQLObjectType({
 				}
 
 				if (cleanedCardNumber.match(visa) || cleanedCardNumber.match(mastercard)){
+
+
 					let firstHalf = cleanedCardNumber.substring(0, 8);
 					let secondHalf = cleanedCardNumber.substring(8, 16);
 					let hashedSecondHalf = await bcrypt.hash(secondHalf, 6);
-
 
 					secureCardNumber = firstHalf.concat(hashedSecondHalf);
 
@@ -67,13 +71,11 @@ const PaymentMethodMutation = new GraphQLObjectType({
 					return err;
 				}
 
-				console.log(secureCardNumber);
-
 				let newPayment = new Payment({
 					name: cleanedName,
 					userId: args.userId,
 					cardNumber: secureCardNumber,
-					expiryDate: cleanedExpiry,
+					expiry: cleanedExpiry,
 					securityNumber: newCvv
 				})
 
@@ -88,12 +90,8 @@ const PaymentMethodMutation = new GraphQLObjectType({
 			},
 			async resolve(parent, args){
 				const foundPaymentMethod = await Payment.findByIdAndDelete(args._id);
-				const message = {
-					msg: "You have deleted this Payment method",
-					paymentMethod: foundPaymentMethod
-				}
 
-				return message;
+				return foundPaymentMethod;
 			}
 		}
 

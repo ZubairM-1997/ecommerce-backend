@@ -15,8 +15,9 @@ const UserQuery = new GraphQLObjectType({
 		user: {
 			type: UserType,
 			args: {id: {type: GraphQLID}},
-			resolve(parent, args){
-				return User.findById(args.id)
+			async resolve(parent, args){
+				let found =  await User.findById(args.id)
+				return found;
 			}
 		},
 		login: {

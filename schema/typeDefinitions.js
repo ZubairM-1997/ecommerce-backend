@@ -16,23 +16,25 @@ const UserType = new GraphQLObjectType({
 		email: {type: GraphQLString},
 		password: {type: GraphQLString},
 		orders: {
-			type: new GraphQLList(OrderType),
-			resolve(parent, args){
-				return Order.find({userId: parent.id})
+			type: GraphQLList(OrderType),
+			async resolve(parent, args){
+				let found = await Order.find({userId: parent.id})
+				return found;
 			}
 		},
 		paymentMethods: {
-			type: new GraphQLList(PaymentMethodType),
-			resolve(parent, args){
-				return PaymentMethod.find({userId: parent.id})
+			type: GraphQLList(PaymentMethodType),
+			async resolve(parent, args){
+				let found = await PaymentMethod.find({userId: parent.id})
+				return found;
 			}
 		},
 		personal: {
-			type: PersonalDataType,
-			resolve(parent, args){
-				return Personal.findById({userId: parent.id})
+			type: GraphQLList(PersonalDataType),
+			async resolve(parent, args){
+				let found = await Personal.find({userId: parent.id})
+				return found;
 			}
-
 		}
 	})
 })
@@ -46,8 +48,10 @@ const PersonalDataType = new GraphQLObjectType({
 		phone: {type: GraphQLString},
 		user: {
 			type: UserType,
-			resolve(parent, args){
-				User.findById(parent.userId)
+			async resolve(parent, args){
+				const found = await User.findById(parent.userId);
+				return found;
+
 			}
 		}
 	})
@@ -63,8 +67,9 @@ const PaymentMethodType = new GraphQLObjectType({
 		securityNumber: {type: GraphQLString},
 		user: {
 			type: UserType,
-			resolve(parent, args){
-				return User.findById(parent.userId)
+			async resolve(parent, args){
+				let found = await User.findById(parent.userId);
+				return found;
 			}
 		}
 	})
@@ -80,14 +85,16 @@ const OrderType = new GraphQLObjectType({
 		orderDate: {type: GraphQLString},
 		items: {
 			type: new GraphQLList(ItemType),
-			resolve(parent, args){
-				return Item.find({orderId: parent.id})
+			async resolve(parent, args){
+				let found = await Item.find({orderId: parent.id})
+				return found;
 			}
 		},
 		user: {
 			type: UserType,
-			resolve(parent, args){
-				return User.findById(parent.userId)
+			async resolve(parent, args){
+				let found = await User.findById(parent.userId)
+				return found;
 			}
 		}
 	})
@@ -105,10 +112,10 @@ const ItemType = new GraphQLObjectType({
 		img: {type: GraphQLString},
 		order: {
 			type: OrderType,
-			resolve(parent, args){
-				return Order.findById(parent.orderId)
-			}
-		}
+			async resolve(parent, args){
+				let found = await Order.findById(parent.orderId)
+				return found;
+		}}
 	})
 });
 

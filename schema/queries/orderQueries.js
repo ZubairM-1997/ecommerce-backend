@@ -1,7 +1,7 @@
 const graphql = require("graphql");
 const sanitize = require("mongo-sanitize");
 
-const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLSchema} = graphql;
+const {GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList} = graphql;
 
 const {OrderType} = require("../typeDefinitions");
 const Order = require("../../models/Order");
@@ -10,10 +10,11 @@ const OrderQuery = new GraphQLObjectType({
 	name: "OrderQuery",
 	fields: () => ({
 		order: {
-			type: OrderType,
+			type: GraphQLList(OrderType),
 			args: {userId: {type: GraphQLID}},
 			resolve(parent, args){
-				return Order.find({userId: args.userId})
+				let found = Order.find({userId: args.userId})
+				return found;
 			}
 		}
 	})
@@ -27,25 +28,38 @@ const OrderMutation = new GraphQLObjectType({
 			args: {
 				totalSpent: {type: GraphQLInt},
 				shippingAddress: {type: GraphQLString},
-				orderRef: {type: GraphQLString},
+				orderReference: {type: GraphQLString},
 				orderDate: {type: GraphQLString},
 				userId: {type: GraphQLID}
 			},
 			resolve(parent, args){
-				let cleanedAddress = sanitize(shippingAddress);
-				let cleanedRef = sanitize(orderRef);
-				let cleanedDate = sanitize(orderDate);
+				let cleanedAddress = sanitize(args.shippingAddress);
+				let cleanedRef = sanitize(args.orderReference);
+				let cleanedDate = sanitize(args.orderDate);
 
 				let newOrder = new Order({
 					totalSpent: args.totalSpent,
 					shippingAddress: cleanedAddress,
-					orderRef: cleanedRef,
-					orderDate, cleanedDate,
+					orderReference: cleanedRef,
+					orderDate: cleanedDate,
 					userId: args.userId
 				})
 
 				let savedOrder = newOrder.save();
 				return savedOrder;
+			}
+		},
+		changeTotalSpent: {
+			type: OrderType,
+			args: {
+				totalSpent: {GraphQLInt},
+				orderId: {type: GraphQLID}
+			},
+			async resolve(parent, args){
+				await Order.findByIdAndUpdate(args.orderId, {totalSpent: args.totalSpent});
+				let updated = Order.findById(args.orderId)
+				return updated;
+
 			}
 		}
 	})

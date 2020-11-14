@@ -13,8 +13,9 @@ const PersonalDataQuery = new GraphQLObjectType({
 		personalData: {
 			type: PersonalDataType,
 			args: {userId: {type: GraphQLID}},
-			resolve(parent, args){
-				return Personal.find({userId: args.userId})
+			async resolve(parent, args){
+				let found = await Personal.find({userId: args.userId});
+				return found;
 			}
 		}
 	})
@@ -35,22 +36,30 @@ const PersonalDataMutation = new GraphQLObjectType({
 
 				let cleanedAddress = sanitize(args.address);
 				let cleanedCountry = sanitize(args.country);
-				let cleanedPhone = sanitize(args.cleanedPhone);
+				let cleanedPhone = sanitize(args.phone);
 
 				if (cleanedAddress === null || cleanedAddress === " "){
 					const err = new Error("Address cannot be empty")
+					return err
 				}
 
 				if (cleanedCountry === null || cleanedCountry === " "){
 					const err = new Error("Country name cannot be empty")
+					return err
 				}
 
 				if (cleanedPhone === null || cleanedPhone === " "){
 					const err = new Error("Phone number cannot be empty")
+					return err
 				}
 
-				let foundData = await Personal.find({userId: args.userId})
-				if (!foundData){
+				let foundData = await Personal.findOne({userId: args.userId})
+				console.log(!foundData);
+				if (foundData){
+					const err = new Error("You have already created the data")
+					return err;
+
+				} else {
 
 					let dataObj = new Personal({
 						address: cleanedAddress,
@@ -62,9 +71,6 @@ const PersonalDataMutation = new GraphQLObjectType({
 					let savedData = dataObj.save();
 					return savedData;
 
-				} else {
-					const err = new Error("You have already created the data")
-					return err;
 				}
 			}
 		},
@@ -77,21 +83,28 @@ const PersonalDataMutation = new GraphQLObjectType({
 				phone: {type: GraphQLString}
 			},
 			async resolve(parent, args){
+				console.log(args.phone)
 
 				let cleanedAddress = sanitize(args.address);
 				let cleanedCountry = sanitize(args.country);
-				let cleanedPhone = sanitize(args.cleanedPhone);
+				let cleanedPhone = sanitize(args.phone);
+
+				console.log(cleanedPhone);
+
 
 				if (cleanedAddress === null || cleanedAddress === " "){
 					const err = new Error("Address cannot be empty")
+					return err;
 				}
 
 				if (cleanedCountry === null || cleanedCountry === " "){
 					const err = new Error("Country name cannot be empty")
+					return err;
 				}
 
 				if (cleanedPhone === null || cleanedPhone === " "){
 					const err = new Error("Phone number cannot be empty")
+					return err;
 				}
 
 				let mutatedData = {
@@ -100,8 +113,10 @@ const PersonalDataMutation = new GraphQLObjectType({
 					phone: cleanedPhone
 				}
 
-				let chanagedData = await Personal.findOneAndUpdate({userId: args.userId}, mutatedData);
-				return chanagedData;
+				let changedData = await Personal.findOneAndUpdate({userId: args.userId}, mutatedData);
+				let newData = await Personal.findOne({userId: args.userId});
+				console.log(newData);
+				return newData;
 
 
 			}
