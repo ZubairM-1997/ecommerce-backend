@@ -52,7 +52,7 @@ const OrderMutation = new GraphQLObjectType({
 		changeTotalSpent: {
 			type: OrderType,
 			args: {
-				totalSpent: {GraphQLInt},
+				totalSpent: {type: GraphQLInt},
 				orderId: {type: GraphQLID}
 			},
 			async resolve(parent, args){

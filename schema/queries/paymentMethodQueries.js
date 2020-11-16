@@ -10,6 +10,7 @@ const cvv = /^[0-9]{3,4}$/
 
 const {PaymentMethodType} = require("../typeDefinitions");
 const Payment = require("../../models/PaymentMethod");
+const {paymentMatch} = require("../../asyncFunctions/paymentExists")
 
 const PaymentMethodQuery = new GraphQLObjectType({
 	name: "PaymentMethodQuery",
@@ -43,8 +44,6 @@ const PaymentMethodMutation = new GraphQLObjectType({
 				let cleanedExpiry = sanitize(args.expiry);
 				let cleanedSecurity = sanitize(args.securityNumber);
 
-
-
 				let secureCardNumber;
 				let newCvv;
 
@@ -58,29 +57,38 @@ const PaymentMethodMutation = new GraphQLObjectType({
 				}
 
 				if (cleanedCardNumber.match(visa) || cleanedCardNumber.match(mastercard)){
-
-
-					let firstHalf = cleanedCardNumber.substring(0, 8);
-					let secondHalf = cleanedCardNumber.substring(8, 16);
-					let hashedSecondHalf = await bcrypt.hash(secondHalf, 6);
-
-					secureCardNumber = firstHalf.concat(hashedSecondHalf);
+					secureCardNumber =  await bcrypt.hash(cleanedCardNumber, 12)
 
 				} else {
 					const err = new Error("Must be a Visa or a MasterCard")
 					return err;
 				}
 
-				let newPayment = new Payment({
-					name: cleanedName,
-					userId: args.userId,
-					cardNumber: secureCardNumber,
-					expiry: cleanedExpiry,
-					securityNumber: newCvv
-				})
+				const matchedPayments = await Payment.find({userId: args.userId})
 
-				let savedPayment = newPayment.save();
-				return savedPayment;
+				const final = await paymentMatch(matchedPayments, cleanedCardNumber)
+				const allEqual = arr => arr.every( v => v === false )
+
+				if (allEqual(final) === true){
+					console.log("all equal")
+					let newPayment = new Payment({
+						name: cleanedName,
+						userId: args.userId,
+						cardNumber: secureCardNumber,
+						expiry: cleanedExpiry,
+						securityNumber: newCvv
+					})
+
+					let savedPayment = newPayment.save();
+					return savedPayment;
+				} else {
+					const err = new Error("this card already exists")
+					return err;
+				}
+
+
+
+
 			}
 		},
 		deletePayment: {
