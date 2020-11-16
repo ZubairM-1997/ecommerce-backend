@@ -1,8 +1,5 @@
 const bcrypt = require("bcrypt")
 
-function delay(){
-	return new Promise(resolve => setTimeout(resolve, 300))
-}
 
 async function paymentMatch(dataArray, cardNumber){
 	let booleanArray = []
