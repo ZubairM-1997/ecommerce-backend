@@ -12,7 +12,9 @@ An Order HAS MANY Items
 I had found an external API which gets a dummy list of shopping items, the plan was to fetch them on the front-end and allow the user to save those particular items to the back-end via GraphQL. Ultimately testing out the communication between React.js and GraphQL.
 
 ## Demo
-!
+![](demo.gif)
+
+As we see here, I am using the mutation method addUser() as I have defined in my resolver methods (you can find this method at the directory schema/queries/userQueries.js under UserMutations), and once the user has been created, GraphQL presents the data back to the client as a UserType, as I have defined them under typeDefinitions (you can find this in under the directory schema/typeDefinitions.js). I have also specified within my resolver method, that to check if that particular already exists within the database, if it does, then it returns an error.
 
 ### Technologies and Tools used
 JavaScript, Node.js, GraphQL, bcrypt, MongoDB, MongoDB Atlas, Graphiql, Express.js
